@@ -1,0 +1,12 @@
+# Configuration for systemwide password quality limit.
+# man pwquality.conf for more details
+#
+# This file was generated via Ansible.
+# Playbook: fedora-hardening.yml
+
+{% for rule in pw_quality_fedora %}
+{% if rule.value is defined | bool %}
+# {{ rule.description }}
+{{ rule.parameter}} = {{ rule.value }}
+{% endif %}
+{% endfor %}

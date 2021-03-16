@@ -1,0 +1,81 @@
+---
+# The main purpose of this playbook is didactical. It is also very simple.
+# If you need to hardening your system, many other settings are strongly recommended.
+# As great references, I recommend read this material:
+# - https://www.stigviewer.com/stig/red_hat_enterprise_linux_8/
+# - https://github.com/openstack/ansible-hardening
+#
+# This playbook was tested in a Fedora 33. I tried to use as much ansible 
+# modules I could to make it more practical as a reference for quick consults.
+- name: Playbook for simple hardening in Fedora
+  hosts: localhost
+  become: true
+
+  # We can declare variables inside the playbook or in external files.
+  vars:
+    umask: '077'
+  vars_files:
+    - fedora-hardening-vars.yml
+
+  tasks:
+  # Many variables from the pwquality.conf may impact the password length.
+  # man 5 pwquality.conf
+  # In this case, it is safer to recreate the entire file with the desired values.
+  - name: Ensure min length for passwords.
+    template:
+      dest: /etc/security/pwquality.conf
+      backup: yes
+      src: 'pwquality.conf.j2'
+
+  # There is a condition for system users. This ensure the value for both.
+  - name: Set umask for non-login shell in /etc/bashrc.
+    replace:
+      backup: yes
+      path: /etc/bashrc
+      regexp: 'umask\s+\d+'
+      replace: 'umask {{ umask }}'
+
+  # We only have to ensure one line here, since system user can't login
+  # according to the default PAM rules.
+  - name: Set umask for login shell in /etc/profile.
+    lineinfile:
+      backup: yes
+      path: /etc/profile
+      regexp: 'umask\s+\d+'
+      line: 'umask {{ umask }}'
+      state: present
+      create: yes
+
+  # https://www.stigviewer.com/stig/red_hat_enterprise_linux_8/2020-11-25/finding/V-230313
+  - name: Disable core dumps for all users via limits.
+    lineinfile:
+      backup: yes
+      path: /etc/security/limits.d/z_core-dumps.conf
+      line: '* hard core 0'
+      state: present
+      create: yes
+
+  # https://www.stigviewer.com/stig/red_hat_enterprise_linux_8/2020-11-25/finding/V-230310
+  - name: Kernel core dumps (kdump) service disabled and stopped.
+    service:
+      name: kdump
+      state: stopped
+      enabled: no
+
+  # https://www.stigviewer.com/stig/red_hat_enterprise_linux_8/2020-11-25/finding/V-230312
+  - name: systemd-coredump.socket unit is masked.
+    systemd:
+      name: systemd-coredump.socket
+      state: stopped
+      masked: True
+      daemon_reload: True
+
+  # https://www.stigviewer.com/stig/red_hat_enterprise_linux_8/2020-11-25/finding/V-230315
+  - name: Core dump backtraces disabled.
+    lineinfile:
+      backup: yes
+      path: /etc/systemd/coredump.conf
+      regexp: 'ProcessSizeMax'
+      line: 'ProcessSizeMax=0'
+      state: present
+      create: yes

@@ -1,0 +1,34 @@
+---
+# The main purpose of this playbook is didactical. It is also very simple.
+#
+# This playbook was tested in a Fedora 33. If you indent to create the file
+# in a restricted directory, adjust the "become" parameter.
+- name: Playbook to create a folder and conditionally a file inside this folder.
+  hosts: localhost
+  become: false
+
+  vars:
+    # This pipe "|" is very useful to easily create multiline files.
+    file_content: |
+      First line
+      Second line
+    folder_dst: './new_folder'
+    file_dst: 'new-file'
+
+  tasks:
+  # I included the option to create a folder, so we can see the registers
+  # and conditionals working in this simple playbook.
+  - name: Create a folder.
+    file:
+      path: '{{ folder_dst }}'
+      state: directory
+    register:
+      result_folder_dst
+
+  # copy module is also nice to create files with the expected content.
+  - name: Using copy to create a file with content.
+    copy:
+      content: '{{ file_content }}'
+      dest: '{{ folder_dst }}/{{ file_dst }}'
+    when:
+      result_folder_dst is succeeded

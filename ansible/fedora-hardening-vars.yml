@@ -1,0 +1,44 @@
+# This var file is used by the playbook fedora-hardening.yml
+pw_quality_fedora:
+  - parameter: minlen
+    value: 10
+    description: "Minimum acceptable size for the new password."
+  - parameter: dcredit
+    value: 0
+    description: "The maximum credit for having digits in the new password."
+  - parameter: ucredit
+    value: 0
+    description: "The maximum credit for having uppercase characters in the new password."
+  - parameter: lcredit
+    value: 0
+    description: "The maximum credit for having lowercase characters in the new password."
+  - parameter: ocredit
+    value: 0
+    description: "The maximum credit for having other characters in the new password."
+  - parameter: minclass
+    value: 0
+    description: "The minimum number of required classes of characters for the new password."
+  - parameter: maxrepeat
+    value: 0
+    description: "The maximum number of allowed consecutive same characters in the new password."
+  - parameter: maxclassrepeat
+    value: 0
+    description: "The maximum number of allowed consecutive characters of the same class in the new password."
+  - parameter: gecoscheck
+    value: 0
+    description: "The maximum number of allowed consecutive characters of the same class in the new password."
+  - parameter: dictcheck
+    value: 1
+    description: "Whether to check for the words from the cracklib dictionary."
+  - parameter: usercheck
+    value: 1
+    description: "Whether to check if it contains the user name in some form."
+  - parameter: usersubstr
+    value: 0
+    description: "Length of substrings from the username to check for in the password"
+  - parameter: enforcing
+    value: 1
+    description: "Whether the check is enforced by the PAM module and possibly other applications."
+  - parameter: retry
+    value: 1
+    description: "Prompt user at most N times before returning with error"
